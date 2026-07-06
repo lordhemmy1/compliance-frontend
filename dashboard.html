@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complispect | Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* Same as before, but with a few additions for the new modules */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f5f2eb; color: #0a0a0f; display: flex; min-height: 100vh; }
+    .sidebar { width: 220px; background: #1c2b3a; color: #fff; display: flex; flex-direction: column; padding: 24px 0; position: fixed; top:0; left:0; bottom:0; overflow-y: auto; z-index: 100; }
+    .sidebar .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; letter-spacing: 0.04em; padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
+    .sidebar .logo span { color: #e8401c; }
+    .sidebar .user-info { padding: 0 20px 16px; font-size: 12px; color: rgba(255,255,255,0.5); border-bottom: 1px solid rgba(255,255,255,0.06); margin-bottom: 16px; }
+    .sidebar .user-info strong { color: #fff; display: block; }
+    .nav-item { padding: 10px 20px; cursor: pointer; transition: background 0.2s, border-left 0.2s; border-left: 3px solid transparent; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); text-decoration: none; display: block; }
+    .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.05); color: #fff; border-left-color: #e8401c; }
+    .nav-item .icon { margin-right: 10px; }
+    .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; padding: 16px 20px 8px; color: rgba(255,255,255,0.25); }
+    .sidebar .logout { margin-top: auto; border-top: 1px solid rgba(255,255,255,0.06); padding: 16px 20px 0; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 13px; transition: color 0.2s; }
+    .sidebar .logout:hover { color: #fff; }
+    .main { margin-left: 220px; flex:1; padding: 24px 32px; min-height: 100vh; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.02em; }
+    .page-header .actions { display: flex; gap: 10px; }
+    .btn { background: #fff; border: 1.5px solid #ede9df; padding: 8px 16px; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #e8401c; border-color: #e8401c; color: #fff; }
+    .btn-primary:hover { background: #c02f0f; border-color: #c02f0f; }
+    .btn-outline { background: transparent; }
+    .btn-outline:hover { border-color: #0a0a0f; }
+    .btn-danger { background: #dc3545; border-color: #dc3545; color: #fff; }
+    .btn-danger:hover { background: #b02a37; }
+    .card { background: #fff; border-radius: 8px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #ede9df; margin-bottom: 20px; }
+    .card h3 { font-size: 18px; margin-bottom: 12px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { text-align: left; padding: 10px 8px; border-bottom: 2px solid #ede9df; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #999; }
+    td { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-danger { background: #f8d7da; color: #721c24; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .badge-info { background: #d1ecf1; color: #0c5460; }
+    .badge-secondary { background: #e2e3e5; color: #383d41; }
+    .modal-overlay { display: none; position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; z-index: 999; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #fff; border-radius: 8px; padding: 32px; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; }
+    .modal h2 { font-family: 'Bebas Neue', sans-serif; font-size: 28px; margin-bottom: 16px; }
+    .modal .form-group { margin-bottom: 14px; }
+    .modal .form-group label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 4px; }
+    .modal .form-group input, .modal .form-group select, .modal .form-group textarea { width: 100%; padding: 8px 10px; border: 1.5px solid #ede9df; border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 14px; }
+    .modal .form-group textarea { resize: vertical; }
+    .modal .form-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
+    .flex { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .hidden { display: none; }
+    @media (max-width:768px) {
+      .sidebar { width: 60px; padding: 12px 0; }
+      .sidebar .logo, .sidebar .user-info, .sidebar .nav-item span { display: none; }
+      .sidebar .nav-item { padding: 12px; text-align: center; }
+      .sidebar .nav-item .icon { margin-right:0; }
+      .main { margin-left: 60px; padding: 16px; }
+      .page-header h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo">COMPLISPECT<span>.</span></div>
+    <div class="user-info">
+      <strong id="userName">User</strong>
+      <span id="userRole">client</span>
+    </div>
+    <div class="nav-section">Main</div>
+    <div class="nav-item active" data-module="dashboard"><span class="icon">📊</span><span>Dashboard</span></div>
+    <div class="nav-item" data-module="calendar"><span class="icon">📅</span><span>Calendar</span></div>
+    <div class="nav-item" data-module="tasks"><span class="icon">✅</span><span>Tasks</span></div>
+    <div class="nav-item" data-module="documents"><span class="icon">📄</span><span>Documents</span></div>
+    <div class="nav-item" data-module="licenses"><span class="icon">📋</span><span>Licenses</span></div>
+    <div class="nav-item" data-module="vendors"><span class="icon">🤝</span><span>Vendors</span></div>
+    <div class="nav-item" data-module="certifications"><span class="icon">🎓</span><span>Certifications</span></div>
+    <div class="nav-item" data-module="incidents"><span class="icon">🚨</span><span>Incidents</span></div>
+    <div class="nav-item" data-module="audit"><span class="icon">🔍</span><span>Audit Evidence</span></div>
+    <div class="nav-item" data-module="taxfilings"><span class="icon">💰</span><span>Tax Filings</span></div>
+    <div class="nav-item" data-module="templates"><span class="icon">📝</span><span>Regulatory Templates</span></div>
+    <div class="nav-item" data-module="checklists"><span class="icon">📊</span><span>Checklists</span></div>
+    <div class="nav-item" data-module="risk"><span class="icon">⚠️</span><span>Risk Assessment</span></div>
+    <div class="nav-item" data-module="activity"><span class="icon">📋</span><span>Activity Logs</span></div>
+    <div class="nav-item" data-module="settings" style="border-top:1px solid rgba(255,255,255,0.06); margin-top:12px; padding-top:12px;"><span class="icon">⚙️</span><span>Settings</span></div>
+    <div class="logout" onclick="doLogout()">🚪 Sign Out</div>
+  </div>
+
+  <!-- Main content -->
+  <div class="main" id="mainContent">
+    <div class="page-header">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="actions" id="actionButtons"></div>
+    </div>
+    <div id="contentArea"></div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modalContent">
+      <h2 id="modalTitle">Add Item</h2>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    // ---- CONFIG ----
+    var WEBAPP_URL = 'YOUR_WEBAPP_URL'; // <-- replace with actual Web App URL
+
+    // ---- SESSION ----
+    var token = sessionStorage.getItem('ctoken');
+    var clientId = sessionStorage.getItem('cid');
+    var role = sessionStorage.getItem('role') || 'client';
+    var clientName = sessionStorage.getItem('cname') || 'User';
+    var company = sessionStorage.getItem('company') || '';
+    if (!token || !clientId) window.location.href = 'login.html';
+
+    document.getElementById('userName').textContent = clientName;
+    document.getElementById('userRole').textContent = role;
+
+    // ---- STATE ----
+    var currentModule = 'dashboard';
+    var allData = {};
+
+    // ---- DOM refs ----
+    var contentArea = document.getElementById('contentArea');
+    var pageTitle = document.getElementById('pageTitle');
+    var actionButtons = document.getElementById('actionButtons');
+
+    // ---- NAVIGATION ----
+    document.querySelectorAll('.nav-item').forEach(function(el) {
+      el.addEventListener('click', function() {
+        var module = this.dataset.module;
+        if (module) loadModule(module);
+      });
+    });
+
+    function loadModule(module) {
+      currentModule = module;
+      document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+      var nav = document.querySelector('.nav-item[data-module="'+module+'"]');
+      if (nav) nav.classList.add('active');
+      renderModule(module);
+    }
+
+    // ---- RENDER MODULE ----
+    function renderModule(module) {
+      var titleMap = {
+        'dashboard':'Dashboard',
+        'calendar':'Calendar',
+        'tasks':'Tasks',
+        'documents':'Documents',
+        'licenses':'Licenses',
+        'vendors':'Vendors',
+        'certifications':'Certifications',
+        'incidents':'Incidents',
+        'audit':'Audit Evidence',
+        'taxfilings':'Tax Filings',
+        'templates':'Regulatory Templates',
+        'checklists':'Checklists',
+        'risk':'Risk Assessment',
+        'activity':'Activity Logs',
+        'settings':'Settings'
+      };
+      pageTitle.textContent = titleMap[module] || module;
+      actionButtons.innerHTML = '';
+
+      var addable = ['tasks','documents','licenses','vendors','certifications','incidents','audit','taxfilings','templates','checklists','risk'];
+      if (addable.includes(module)) {
+        var btn = document.createElement('button');
+        btn.className = 'btn btn-primary';
+        var label = module === 'taxfilings' ? 'Tax Filing' :
+                    module === 'templates' ? 'Template' :
+                    module === 'audit' ? 'Evidence' :
+                    module.slice(0,-1);
+        btn.textContent = '+ Add ' + label;
+        btn.onclick = function() { showAddModal(module); };
+        actionButtons.appendChild(btn);
+      }
+
+      if (module === 'dashboard') {
+        renderDashboard();
+        return;
+      }
+      if (module === 'calendar') {
+        renderCalendar();
+        return;
+      }
+      if (module === 'activity') {
+        // Only admin or client can see their own logs; we'll show all for admin, else client's own
+        fetchData(module, function(data) {
+          allData[module] = data;
+          renderTable(module, data);
+        });
+        return;
+      }
+      if (module === 'settings') {
+        if (role !== 'admin') {
+          contentArea.innerHTML = '<div class="card">You do not have permission to view settings.</div>';
+          return;
+        }
+        contentArea.innerHTML = '<div class="card"><h3>Settings</h3><p>Configure system settings directly in the <strong>Admin Settings</strong> sheet of the backend spreadsheet.</p></div>';
+        return;
+      }
+      // Normal modules: fetch and render
+      fetchData(module, function(data) {
+        allData[module] = data;
+        renderTable(module, data);
+      });
+    }
+
+    // ---- FETCH DATA ----
+    function fetchData(module, callback) {
+      var actionMap = {
+        'tasks':'getTasks',
+        'documents':'getDocuments',
+        'licenses':'getLicenses',
+        'vendors':'getVendors',
+        'certifications':'getEmployeeCertifications',
+        'incidents':'getIncidents',
+        'audit':'getAuditEvidence',
+        'taxfilings':'getTaxFilings',
+        'templates':'getRegulatoryTemplates',
+        'checklists':'getComplianceChecklists',
+        'risk':'getRiskAssessments',
+        'activity':'getActivityLogs'
+      };
+      var action = actionMap[module];
+      if (!action) { callback([]); return; }
+      var url = WEBAPP_URL + '?action=' + action + '&token=' + token;
+      fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.success === false) {
+            alert('Error: ' + (data.error || 'Unknown'));
+            callback([]);
+          } else {
+            callback(data);
+          }
+        })
+        .catch(function(err) {
+          console.error(err);
+          alert('Network error loading data.');
+          callback([]);
+        });
+    }
+
+    // ---- RENDER TABLE ----
+    function renderTable(module, data) {
+      if (!data || data.length === 0) {
+        contentArea.innerHTML = '<div class="card"><p style="color:#999; text-align:center; padding:20px;">No records found.</p></div>';
+        return;
+      }
+      var headers = Object.keys(data[0]).filter(function(h) { return h !== 'ID' && h !== 'ClientID'; });
+      var html = '<div class="card"><div class="table-wrap"><table><thead><tr>';
+      headers.forEach(function(h) {
+        html += '<th>'+h.replace(/_/g,' ')+'</th>';
+      });
+      html += '<th>Actions</th></tr></thead><tbody>';
+      data.forEach(function(record) {
+        html += '<tr>';
+        headers.forEach(function(h) {
+          var val = record[h] || '';
+          if (h === 'ExpiryDate' || h === 'DueDate' || h === 'ContractEnd' || h === 'Date' || h === 'Timestamp') {
+            val = val ? new Date(val).toLocaleDateString() : '';
+          }
+          if (h === 'Status' || h === 'Severity' || h === 'Priority') {
+            var cls = '';
+            if (val === 'Active' || val === 'Completed' || val === 'Resolved' || val === 'Filed') cls = 'badge-success';
+            else if (val === 'Expired' || val === 'Overdue' || val === 'High' || val === 'Critical') cls = 'badge-danger';
+            else if (val === 'Pending' || val === 'In Progress' || val === 'Open') cls = 'badge-warning';
+            else cls = 'badge-secondary';
+            val = '<span class="badge '+cls+'">'+val+'</span>';
+          }
+          html += '<td>'+val+'</td>';
+        });
+        html += '<td><div class="flex">';
+        html += '<button class="btn btn-outline" onclick="editRecord(\''+module+'\', '+record.ID+')">✏️</button>';
+        html += '<button class="btn btn-danger" onclick="deleteRecord(\''+module+'\', '+record.ID+')">🗑️</button>';
+        html += '</div></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div></div>';
+      contentArea.innerHTML = html;
+    }
+
+    // ---- DASHBOARD ----
+    function renderDashboard() {
+      var url = WEBAPP_URL + '?action=getDashboard&token=' + token;
+      fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.success === false) {
+            contentArea.innerHTML = '<div class="card">Error loading dashboard.</div>';
+            return;
+          }
+          var d = data;
+          var html = '<div class="card"><h3>Compliance Score</h3><div style="font-size:48px; font-weight:bold; color:#e8401c;">'+d.complianceScore+'%</div></div>';
+          var metrics = [
+            ['Compliance Items', d.itemsCount],
+            ['Tasks', d.tasksCount],
+            ['Licenses', d.licensesCount],
+            ['Incidents', d.incidentsCount],
+            ['Tax Filings', d.taxFilingsCount],
+            ['Vendors', d.vendorsCount],
+            ['Certifications', d.certificationsCount]
+          ];
+          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px,1fr)); gap:16px; margin-top:16px;">';
+          metrics.forEach(function(m) {
+            html += '<div class="card"><h3>'+m[0]+'</h3><div style="font-size:28px;">'+m[1]+'</div></div>';
+          });
+          html += '</div>';
+          if (d.upcomingDeadlines && d.upcomingDeadlines.length) {
+            html += '<div class="card"><h3>Upcoming Deadlines</h3><ul style="list-style:none; padding:0;">';
+            d.upcomingDeadlines.forEach(function(item) {
+              var date = new Date(item.date).toLocaleDateString();
+              html += '<li style="padding:6px 0; border-bottom:1px solid #f0f0f0;">'+item.name+' ('+item.type+') — '+date+'</li>';
+            });
+            html += '</ul></div>';
+          } else {
+            html += '<div class="card"><h3>Upcoming Deadlines</h3><p style="color:#999;">No upcoming deadlines in the next 30 days.</p></div>';
+          }
+          contentArea.innerHTML = html;
+        })
+        .catch(function(err) {
+          contentArea.innerHTML = '<div class="card">Error loading dashboard.</div>';
+        });
+    }
+
+    // ---- CALENDAR ----
+    function renderCalendar() {
+      // Combine items, licenses, tax filings, vendor contracts
+      var actions = ['getComplianceItems','getLicenses','getTaxFilings','getVendors'];
+      var promises = actions.map(function(a) {
+        return fetch(WEBAPP_URL+'?action='+a+'&token='+token).then(function(r){ return r.json(); });
+      });
+      Promise.all(promises)
+        .then(function(results) {
+          var events = [];
+          var names = ['Compliance Items','Licenses','Tax Filings','Vendors'];
+          results.forEach(function(data, idx) {
+            if (!Array.isArray(data)) return;
+            data.forEach(function(item) {
+              var dateField = (idx===0) ? 'ExpiryDate' : (idx===1) ? 'ExpiryDate' : (idx===2) ? 'DueDate' : 'ContractEnd';
+              var nameField = (idx===3) ? 'Name' : 'Name'; // all have Name
+              if (item[dateField]) {
+                events.push({ name: item[nameField], date: item[dateField], type: names[idx] });
+              }
+            });
+          });
+          events.sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+          var html = '<div class="card"><h3>Compliance Calendar</h3><div class="table-wrap"><table><thead><tr><th>Event</th><th>Type</th><th>Date</th></tr></thead><tbody>';
+          if (events.length === 0) {
+            html += '<tr><td colspan="3" style="text-align:center; padding:20px;">No upcoming events.</td></tr>';
+          } else {
+            events.forEach(function(ev) {
+              var d = new Date(ev.date).toLocaleDateString();
+              html += '<tr><td>'+ev.name+'</td><td>'+ev.type+'</td><td>'+d+'</td></tr>';
+            });
+          }
+          html += '</tbody></table></div></div>';
+          contentArea.innerHTML = html;
+        })
+        .catch(function(err) {
+          contentArea.innerHTML = '<div class="card">Error loading calendar.</div>';
+        });
+    }
+
+    // ---- ADD/EDIT MODAL ----
+    function showAddModal(module) {
+      openModal('Add ' + module.slice(0,-1), buildForm(module, null));
+    }
+
+    function editRecord(module, id) {
+      var record = allData[module].find(function(r) { return r.ID === id; });
+      if (!record) return alert('Record not found');
+      openModal('Edit ' + module.slice(0,-1), buildForm(module, record));
+    }
+
+    function buildForm(module, record) {
+      var fields = getFieldsForModule(module);
+      var html = '';
+      fields.forEach(function(f) {
+        var val = record ? (record[f.key] || '') : '';
+        var type = f.type || 'text';
+        var options = f.options || [];
+        html += '<div class="form-group">';
+        html += '<label>'+f.label+'</label>';
+        if (type === 'select') {
+          html += '<select id="field_'+f.key+'">';
+          options.forEach(function(opt) {
+            var selected = (opt === val) ? ' selected' : '';
+            html += '<option value="'+opt+'"'+selected+'>'+opt+'</option>';
+          });
+          html += '</select>';
+        } else if (type === 'textarea') {
+          html += '<textarea id="field_'+f.key+'" rows="3">'+val+'</textarea>';
+        } else if (type === 'date') {
+          if (val) {
+            var d = new Date(val);
+            if (!isNaN(d)) val = d.toISOString().split('T')[0];
+          }
+          html += '<input type="date" id="field_'+f.key+'" value="'+val+'" />';
+        } else {
+          html += '<input type="'+type+'" id="field_'+f.key+'" value="'+val+'" />';
+        }
+        html += '</div>';
+      });
+      if (record) {
+        html += '<input type="hidden" id="editId" value="'+record.ID+'" />';
+      }
+      html += '<div class="form-actions">';
+      html += '<button class="btn btn-outline" onclick="closeModal()">Cancel</button>';
+      html += '<button class="btn btn-primary" onclick="saveRecord(\''+module+'\')">Save</button>';
+      html += '</div>';
+      return html;
+    }
+
+    function getFieldsForModule(module) {
+      var map = {
+        'tasks': [
+          { key:'Title', label:'Title' },
+          { key:'Description', label:'Description', type:'textarea' },
+          { key:'DueDate', label:'Due Date', type:'date' },
+          { key:'Priority', label:'Priority', type:'select', options:['Low','Medium','High'] },
+          { key:'Status', label:'Status', type:'select', options:['Pending','In Progress','Completed'] },
+          { key:'AssignedTo', label:'Assigned To' }
+        ],
+        'documents': [
+          { key:'Name', label:'Document Name' },
+          { key:'Type', label:'Type', type:'select', options:['Policy','Certificate','Report','Contract','Other'] },
+          { key:'FileURL', label:'File URL (link)' },
+          { key:'ExpiryDate', label:'Expiry Date', type:'date' },
+          { key:'Description', label:'Description', type:'textarea' }
+        ],
+        'licenses': [
+          { key:'Name', label:'License Name' },
+          { key:'Number', label:'License Number' },
+          { key:'IssuingAuthority', label:'Issuing Authority' },
+          { key:'ExpiryDate', label:'Expiry Date', type:'date' },
+          { key:'RenewalReminderDays', label:'Reminder (days before)', type:'number' },
+          { key:'Status', label:'Status', type:'select', options:['Active','Expired','Pending'] },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'vendors': [
+          { key:'Name', label:'Vendor Name' },
+          { key:'Contact', label:'Contact Person' },
+          { key:'Email', label:'Email' },
+          { key:'Phone', label:'Phone' },
+          { key:'ServiceType', label:'Service Type' },
+          { key:'ContractStart', label:'Contract Start', type:'date' },
+          { key:'ContractEnd', label:'Contract End', type:'date' },
+          { key:'Certifications', label:'Certifications', type:'textarea' },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'certifications': [
+          { key:'EmployeeName', label:'Employee Name' },
+          { key:'CertName', label:'Certification Name' },
+          { key:'IssuingBody', label:'Issuing Body' },
+          { key:'ExpiryDate', label:'Expiry Date', type:'date' },
+          { key:'Status', label:'Status', type:'select', options:['Active','Expired','Pending'] },
+          { key:'FileURL', label:'Certificate URL' },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'incidents': [
+          { key:'Date', label:'Date', type:'date' },
+          { key:'Type', label:'Type', type:'select', options:['Security','Safety','Compliance','Other'] },
+          { key:'Description', label:'Description', type:'textarea' },
+          { key:'Severity', label:'Severity', type:'select', options:['Low','Medium','High','Critical'] },
+          { key:'Status', label:'Status', type:'select', options:['Open','In Progress','Resolved'] },
+          { key:'ReportedBy', label:'Reported By' },
+          { key:'Resolution', label:'Resolution', type:'textarea' }
+        ],
+        'audit': [
+          { key:'AuditName', label:'Audit Name' },
+          { key:'Requirement', label:'Requirement' },
+          { key:'EvidenceFile', label:'Evidence File URL' },
+          { key:'Status', label:'Status', type:'select', options:['Pending','Submitted','Accepted','Rejected'] },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'taxfilings': [
+          { key:'Name', label:'Filing Name' },
+          { key:'DueDate', label:'Due Date', type:'date' },
+          { key:'FilingType', label:'Filing Type', type:'select', options:['VAT','Corporation Tax','Income Tax','Payroll','Other'] },
+          { key:'Status', label:'Status', type:'select', options:['Pending','Filed','Overdue'] },
+          { key:'ReminderDays', label:'Reminder (days before)', type:'number' },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'templates': [
+          { key:'Name', label:'Template Name' },
+          { key:'Description', label:'Description', type:'textarea' },
+          { key:'FieldsJSON', label:'Fields (JSON array)', type:'textarea' }
+        ],
+        'checklists': [
+          { key:'Name', label:'Checklist Name' },
+          { key:'ItemsJSON', label:'Items (JSON array with "name","status")', type:'textarea' }
+        ],
+        'risk': [
+          { key:'QuestionnaireJSON', label:'Questionnaire (JSON with questions and answers)', type:'textarea' },
+          { key:'Notes', label:'Notes', type:'textarea' }
+        ],
+        'activity': [] // no add for activity
+      };
+      return map[module] || [];
+    }
+
+    // ---- SAVE ----
+    function saveRecord(module) {
+      var form = document.getElementById('modalBody');
+      var inputs = form.querySelectorAll('[id^="field_"]');
+      var data = {};
+      inputs.forEach(function(inp) {
+        var key = inp.id.replace('field_','');
+        data[key] = inp.value;
+      });
+      var editId = document.getElementById('editId');
+      if (editId) data.id = editId.value;
+
+      var createMap = {
+        'tasks':'createTask',
+        'documents':'createDocument',
+        'licenses':'createLicense',
+        'vendors':'createVendor',
+        'certifications':'createCertification',
+        'incidents':'createIncident',
+        'audit':'createAuditEvidence',
+        'taxfilings':'createTaxFiling',
+        'templates':'createRegulatoryTemplate',
+        'checklists':'createChecklist',
+        'risk':'createRiskAssessment'
+      };
+      var updateMap = {
+        'tasks':'updateTask',
+        'documents':'updateDocument',
+        'licenses':'updateLicense',
+        'vendors':'updateVendor',
+        'certifications':'updateCertification',
+        'incidents':'updateIncident',
+        'audit':'updateAuditEvidence',
+        'taxfilings':'updateTaxFiling',
+        'templates':'updateRegulatoryTemplate',
+        'checklists':'updateChecklist',
+        'risk':'updateRiskAssessment'
+      };
+      var action = editId ? updateMap[module] : createMap[module];
+      if (!action) return alert('Unknown module');
+
+      var payload = { action: action, token: token, data: data };
+      fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(result) {
+        if (result.success) {
+          closeModal();
+          loadModule(module);
+        } else {
+          alert('Error: ' + (result.error || 'Unknown'));
+        }
+      })
+      .catch(function(err) {
+        alert('Network error: ' + err.message);
+      });
+    }
+
+    // ---- DELETE ----
+    function deleteRecord(module, id) {
+      if (!confirm('Delete this record?')) return;
+      var deleteMap = {
+        'tasks':'deleteTask',
+        'documents':'deleteDocument',
+        'licenses':'deleteLicense',
+        'vendors':'deleteVendor',
+        'certifications':'deleteCertification',
+        'incidents':'deleteIncident',
+        'audit':'deleteAuditEvidence',
+        'taxfilings':'deleteTaxFiling',
+        'templates':'deleteRegulatoryTemplate',
+        'checklists':'deleteChecklist',
+        'risk':'deleteRiskAssessment'
+      };
+      var action = deleteMap[module];
+      if (!action) return;
+      fetch(WEBAPP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: action, token: token, data: { id: id } })
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(result) {
+        if (result.success) loadModule(module);
+        else alert('Error: ' + (result.error || 'Unknown'));
+      })
+      .catch(function(err) { alert('Network error'); });
+    }
+
+    // ---- MODAL ----
+    function openModal(title, bodyHtml) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = bodyHtml;
+      document.getElementById('modalOverlay').classList.add('active');
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+    }
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // ---- LOGOUT ----
+    function doLogout() {
+      sessionStorage.clear();
+      window.location.href = 'login.html';
+    }
+
+    // ---- INIT ----
+    loadModule('dashboard');
+  </script>
+</body>
+</html>
