@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complispect | Compliance Platform</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* Reset & base */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2eb;
+      color: #0a0a0f;
+      line-height: 1.6;
+    }
+    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px 0;
+      border-bottom: 1px solid rgba(10,10,15,0.1);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      text-decoration: none;
+      color: #0a0a0f;
+    }
+    .logo span { color: #e8401c; }
+    .logo-badge {
+      background: #1c2b3a;
+      color: #fff;
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      padding: 3px 7px;
+      border-radius: 2px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    nav a {
+      margin-left: 24px;
+      text-decoration: none;
+      font-weight: 500;
+      color: #0a0a0f;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    nav a:hover { opacity:1; }
+    .btn-primary {
+      background: #e8401c;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 3px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+    .btn-primary:hover { background: #c02f0f; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+      padding: 80px 0;
+    }
+    .hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px;
+      line-height: 1;
+      letter-spacing: 0.02em;
+    }
+    .hero h1 .accent { color: #e8401c; }
+    .hero p {
+      font-size: 18px;
+      font-weight: 300;
+      color: #555;
+      margin: 20px 0 30px;
+      max-width: 480px;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+      gap: 24px;
+      margin: 60px 0;
+    }
+    .feature {
+      background: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 1px solid #ede9df;
+    }
+    .feature h3 { font-size: 18px; margin-bottom: 8px; }
+    .feature p { font-size: 14px; color: #666; }
+    .footer {
+      border-top: 1px solid #ede9df;
+      padding: 40px 0;
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+    }
+    @media (max-width:800px) {
+      .hero { grid-template-columns:1fr; text-align:center; }
+      .hero p { margin-left:auto; margin-right:auto; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="#" class="logo">COMPLISPECT<span>.</span><span class="logo-badge">PLATFORM</span></a>
+      <nav>
+        <a href="#features">Features</a>
+        <a href="login.html">Login</a>
+        <a href="login.html" class="btn-primary">Start Free Trial</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Your Compliance <span class="accent">Command Center</span></h1>
+        <p>Automate reminders, manage licenses, track training, log incidents, and stay audit‑ready — all in one place.</p>
+        <a href="login.html" class="btn-primary">Get Started →</a>
+      </div>
+      <div style="background:#ede9df; border-radius:12px; padding:40px; text-align:center; font-size:80px; line-height:1;">
+        🛡️
+        <p style="font-size:16px; color:#555; margin-top:12px;">Compliance made simple.</p>
+      </div>
+    </section>
+
+    <section id="features">
+      <h2 style="font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:0.02em; margin-bottom:24px;">Everything you need</h2>
+      <div class="features">
+        <div class="feature"><h3>📅 Compliance Calendar</h3><p>See all upcoming deadlines at a glance.</p></div>
+        <div class="feature"><h3>✅ Task Management</h3><p>Assign and track tasks with priorities.</p></div>
+        <div class="feature"><h3>📄 Document Repository</h3><p>Store policies, certificates, and evidence.</p></div>
+        <div class="feature"><h3>📋 License Tracking</h3><p>Monitor renewals and expiration dates.</p></div>
+        <div class="feature"><h3>👥 Vendor Management</h3><p>Track contracts and certifications.</p></div>
+        <div class="feature"><h3>🎓 Employee Certifications</h3><p>Monitor training completion and expiry.</p></div>
+        <div class="feature"><h3>🚨 Incident Log</h3><p>Report and resolve compliance incidents.</p></div>
+        <div class="feature"><h3>🔍 Audit Evidence</h3><p>Collect and organise audit materials.</p></div>
+        <div class="feature"><h3>📊 Compliance Score</h3><p>Real‑time score from checklists.</p></div>
+        <div class="feature"><h3>⚠️ Risk Assessment</h3><p>Custom questionnaires to evaluate risks.</p></div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>&copy; 2026 Ascendia Core Ltd. All rights reserved.</p>
+    </footer>
+  </div>
+</body>
+</html>
