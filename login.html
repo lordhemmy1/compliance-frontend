@@ -3,180 +3,279 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Login - Complispect</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <title>Complispect | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    /* ===== Shared CSS (same as index.html) ===== */
+    @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap");
+    :root {
+      --ink: #0a0a0f;
+      --paper: #f5f2eb;
+      --cream: #ede9df;
+      --signal: #e8401c;
+      --signal-dark: #c02f0f;
+      --safe: #1a7a4a;
+      --warn: #d97b00;
+      --steel: #1c2b3a;
+      --steel-light: #2d4459;
+      --mist: #8a9aaa;
+      --rule: rgba(10,10,15,0.1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     body {
-      font-family: 'DM Sans', sans-serif;
-      background: #f5f2eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
+      font-family: "DM Sans", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      overflow-x: hidden;
+      cursor: none;
     }
-    .login-box {
-      background: #fff;
-      border-radius: 8px;
-      padding: 40px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    }
-    .login-box h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 32px;
-      letter-spacing: 0.04em;
-      text-align: center;
-      margin-bottom: 8px;
-    }
-    .login-box .sub {
-      text-align: center;
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 24px;
-    }
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: #999;
-      margin-bottom: 4px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1.5px solid #ede9df;
-      border-radius: 4px;
-      font-size: 14px;
-      font-family: 'DM Sans', sans-serif;
-      transition: border 0.2s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: #e8401c;
-    }
-    .btn-signal {
-      width: 100%;
-      background: #e8401c;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-signal:hover { background: #c02f0f; }
-    .btn-signal:disabled { opacity:0.6; cursor:not-allowed; }
-    .error-msg {
-      color: #e8401c;
-      font-size: 12px;
-      margin-top: 12px;
-      text-align: center;
-      display: none;
-    }
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      vertical-align: middle;
-      margin-right: 6px;
-    }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    .cursor { position: fixed; width: 10px; height: 10px; background: var(--signal); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s; }
+    .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1.5px solid var(--signal); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s; opacity: 0.5; }
+    body:hover .cursor { opacity: 1; }
+    .ticker { background: var(--signal); color: #fff; padding: 9px 0; overflow: hidden; white-space: nowrap; }
+    .ticker-inner { display: inline-block; animation: ticker 28s linear infinite; font-family: "DM Mono", monospace; font-size: 11px; letter-spacing: 0.08em; }
+    .ticker-inner span { margin: 0 40px; opacity: 0.85; }
+    .ticker-inner span::before { content: "●"; margin-right: 12px; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    nav { position: sticky; top: 0; z-index: 100; background: var(--paper); border-bottom: 1px solid var(--rule); padding: 0 6vw; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .nav-logo { font-family: "Bebas Neue", sans-serif; font-size: 22px; letter-spacing: 0.04em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .nav-logo img { height: 32px; width: auto; display: block; }
+    .logo-badge { background: var(--steel); color: #fff; font-family: "DM Mono", monospace; font-size: 9px; letter-spacing: 0.12em; padding: 3px 7px; border-radius: 2px; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: 13px; font-weight: 500; color: var(--ink); text-decoration: none; opacity: 0.65; transition: opacity 0.2s; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta { background: var(--signal) !important; color: #fff !important; opacity: 1 !important; padding: 9px 20px; border-radius: 3px; font-weight: 600 !important; font-size: 13px !important; transition: background 0.2s !important; }
+    .nav-cta:hover { background: var(--signal-dark) !important; }
+    .btn-signal { background: var(--signal); color: #fff; border: none; padding: 13px 32px; border-radius: 3px; font-family: "DM Sans", sans-serif; font-size: 14px; font-weight: 600; cursor: none; transition: background 0.2s, transform 0.1s; }
+    .btn-signal:hover { background: var(--signal-dark); transform: translateY(-1px); }
+    .btn-signal:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-outline { background: transparent; color: var(--ink); border: 1.5px solid var(--rule); padding: 11px 28px; border-radius: 3px; font-family: "DM Sans", sans-serif; font-size: 13px; font-weight: 500; cursor: none; transition: all 0.2s; }
+    .btn-outline:hover { border-color: var(--ink); background: var(--cream); }
+    input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--rule); border-radius: 3px; font-family: "DM Sans", sans-serif; font-size: 14px; background: #fff; color: var(--ink); transition: border 0.2s; }
+    input:focus { outline: none; border-color: var(--signal); }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--mist); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .form-group { margin-bottom: 20px; }
+    .error-msg { color: var(--signal); font-size: 11px; margin-top: 4px; display: none; font-family: "DM Mono", monospace; }
+    .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 6px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    footer { background: var(--ink); color: rgba(255,255,255,0.5); padding: 60px 6vw 32px; }
+    .footer-top { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px; padding-bottom: 48px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .footer-brand { font-family: "Bebas Neue", sans-serif; font-size: 22px; color: #fff; letter-spacing: 0.04em; margin-bottom: 12px; }
+    .footer-tagline { font-size: 13px; line-height: 1.6; max-width: 240px; }
+    .footer-col-title { font-family: "DM Mono", monospace; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 13px; transition: color 0.2s; }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; font-size: 12px; flex-wrap: wrap; gap: 12px; }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { color: rgba(255,255,255,0.3); text-decoration: none; transition: color 0.2s; }
+    .footer-legal a:hover { color: rgba(255,255,255,0.7); }
+    @media(max-width:1024px) { .footer-top { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:640px) { .nav-links { display: none; } .footer-top { grid-template-columns: 1fr; } body { cursor: auto; } .cursor, .cursor-ring { display: none; } }
+
+    /* ===== Login specific ===== */
+    .login-wrap { min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 48px 6vw; }
+    .login-box { background: var(--cream); border: 1px solid var(--rule); border-radius: 4px; padding: 36px; max-width: 420px; width: 100%; }
+    .login-logo { font-size: 48px; text-align: center; margin-bottom: 12px; }
+    .login-title { font-family: "Bebas Neue", sans-serif; font-size: 36px; letter-spacing: 0.04em; margin-bottom: 6px; text-align: center; }
+    .login-sub { font-size: 13px; color: var(--mist); text-align: center; margin-bottom: 28px; }
+    #loginError { color: var(--signal); font-size: 12px; margin-bottom: 12px; text-align: center; font-family: "DM Mono", monospace; min-height: 16px; display: none; }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 44px; }
+    .pw-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--mist); font-size: 16px; padding: 4px; line-height: 1; }
+    .pw-toggle:hover { color: var(--ink); }
   </style>
 </head>
 <body>
-  <div class="login-box">
-    <h1>COMPLISPECT</h1>
-    <div class="sub">Compliance Platform</div>
-    <div id="loginError" class="error-msg"></div>
-    <div class="form-group">
-      <label>Username</label>
-      <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
-    </div>
-    <button class="btn-signal" id="loginBtn" onclick="doLogin()">Log In →</button>
-    <p style="text-align:center; margin-top:16px; font-size:12px; color:#999;">
-      New user? <a href="#" style="color:#e8401c; text-decoration:none;">Contact support</a>
-    </p>
-  </div>
-  <script>
-    // Get Web App URL from deployment; fallback to relative path.
-    // You should set this in the deployment or hardcode.
-    var WEBAPP_URL = ''; // will be set by backend or by user
+  <!-- Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-    // Auto-detect if running inside Apps Script web app
-    if (window.location.href.indexOf('exec') !== -1) {
-      WEBAPP_URL = window.location.href.split('?')[0];
-    } else {
-      // Fallback: you can set a default or prompt user
-      // For development, we use a placeholder that should be replaced.
-      WEBAPP_URL = 'YOUR_WEBAPP_URL'; // replace with actual deployment URL
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>NEVER MISS A DEADLINE</span>
+      <span>AUTOMATED COMPLIANCE TRACKING</span>
+      <span>UK · US · CANADA · AUSTRALIA · NIGERIA</span>
+      <span>14-DAY FREE TRIAL</span>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <span>COMPLISPECT</span>
+      <span class="logo-badge">TRACKER</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html#how">How It Works</a>
+      <a href="index.html#industries">Industries</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">FAQ</a>
+      <a href="login.html" style="opacity:1;font-weight:700;">Login</a>
+      <a href="register.html" class="nav-cta">Start Free Trial →</a>
+    </div>
+  </nav>
+
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-logo">🛡️</div>
+      <h1 class="login-title">Client Login</h1>
+      <p class="login-sub">Complispect | Compliance Platform</p>
+      <div id="loginError"></div>
+      <div class="form-group"><label>Username</label><input type="text" id="uname" placeholder="Your username" autocomplete="username"><div class="error-msg" id="err_uname">Username required.</div></div>
+      <div class="form-group"><label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="pword" placeholder="Your password" autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="pwToggle" onclick="togglePw()" title="Show/hide password">👁</button>
+        </div>
+        <div class="error-msg" id="err_pword">Password required.</div>
+      </div>
+      <button class="btn-signal" style="width:100%;cursor:pointer" id="loginBtn" onclick="doLogin()">Log In →</button>
+      <p style="text-align:center;margin-top:16px;font-size:12px;color:var(--mist)">Forgot your credentials? Check your welcome email or <a href="mailto:support@complispect.com" style="color:var(--signal)">contact support</a>.</p>
+      <p style="text-align:center;margin-top:8px;font-size:12px;color:var(--mist)">New client? <a href="register.html" style="color:var(--signal)">Start your free trial</a></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">COMPLISPECT</div>
+        <p class="footer-tagline">Automated compliance deadline tracking for regulated businesses across the UK, US, Canada, Australia, Nigeria and beyond.</p>
+      </div>
+      <div><p class="footer-col-title">Product</p>
+        <ul class="footer-links">
+          <li><a href="index.html#how">How It Works</a></li>
+          <li><a href="index.html#industries">Industries</a></li>
+          <li><a href="index.html#pricing">Pricing</a></li>
+          <li><a href="register.html">Free Trial</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-col-title">Industries</p>
+        <ul class="footer-links">
+          <li><a href="#">Childcare & Nurseries</a></li>
+          <li><a href="#">Restaurants & Food</a></li>
+          <li><a href="#">Healthcare & Dental</a></li>
+          <li><a href="#">Care Homes</a></li>
+          <li><a href="#">SMEs & Business</a></li>
+        </ul>
+      </div>
+      <div><p class="footer-col-title">Company</p>
+        <ul class="footer-links">
+          <li><a href="#">About Ascendia</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Support</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Ascendia Core Ltd. All rights reserved. Complispect is a product of Ascendia Core Ltd.</span>
+      <div class="footer-legal">
+        <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ===== Configuration =====
+    // IMPORTANT: Replace with your actual Web App URL
+    var WEBAPP_URL = 'YOUR_WEBAPP_URL';
+    var DASHBOARD_URL = 'dashboard.html';
+
+    // ===== Auto-redirect if already logged in =====
+    (function() {
+      var t = sessionStorage.getItem('ctoken');
+      if (t) window.location.href = DASHBOARD_URL;
+    })();
+
+    // ===== Password toggle =====
+    function togglePw() {
+      var inp = document.getElementById('pword');
+      var btn = document.getElementById('pwToggle');
+      if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+      else { inp.type = 'password'; btn.textContent = '👁'; }
     }
 
-    document.getElementById('password').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') doLogin();
-    });
-    document.getElementById('username').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') doLogin();
-    });
-
+    // ===== Login =====
     function doLogin() {
-      var user = document.getElementById('username').value.trim();
-      var pass = document.getElementById('password').value.trim();
-      var error = document.getElementById('loginError');
-      error.style.display = 'none';
-
-      if (!user || !pass) {
-        error.textContent = 'Please enter both username and password.';
-        error.style.display = 'block';
-        return;
-      }
+      var u = document.getElementById('uname').value.trim();
+      var p = document.getElementById('pword').value.trim();
+      var eu = document.getElementById('err_uname');
+      var ep = document.getElementById('err_pword');
+      var el = document.getElementById('loginError');
+      eu.style.display = !u ? 'block' : 'none';
+      ep.style.display = !p ? 'block' : 'none';
+      el.style.display = 'none';
+      el.textContent = '';
+      if (!u || !p) return;
 
       var btn = document.getElementById('loginBtn');
       btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Logging in...';
+      btn.innerHTML = '<span class="spinner"></span>Verifying...';
 
-      // Use GET with query params for simplicity; POST is also supported.
-      var url = WEBAPP_URL + '?action=login&username=' + encodeURIComponent(user) + '&password=' + encodeURIComponent(pass);
-      fetch(url)
-        .then(function(res) { return res.json(); })
-        .then(function(data) {
-          if (data.success) {
-            // Store token and role
-            sessionStorage.setItem('ctoken', data.token);
-            sessionStorage.setItem('cid', data.clientId);
-            sessionStorage.setItem('role', data.role || 'client');
-            sessionStorage.setItem('cname', data.clientName || '');
-            sessionStorage.setItem('company', data.companyName || '');
-            // Redirect to dashboard
-            window.location.href = 'dashboard.html';
+      fetch(WEBAPP_URL + '?action=login&username=' + encodeURIComponent(u) + '&password=' + encodeURIComponent(p), { method: 'GET' })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.success) {
+            sessionStorage.setItem('ctoken', d.token);
+            sessionStorage.setItem('cid', d.clientId || '');
+            sessionStorage.setItem('cplan', d.plan || '');
+            sessionStorage.setItem('cname', d.clientName || '');
+            sessionStorage.setItem('role', d.role || 'client');
+            window.location.href = DASHBOARD_URL;
           } else {
-            error.textContent = data.error || 'Invalid credentials.';
-            error.style.display = 'block';
             btn.disabled = false;
             btn.innerHTML = 'Log In →';
+            el.textContent = d.error || 'Invalid username or password.';
+            el.style.display = 'block';
           }
         })
         .catch(function(err) {
-          error.textContent = 'Connection error. Please try again.';
-          error.style.display = 'block';
           btn.disabled = false;
           btn.innerHTML = 'Log In →';
+          el.textContent = 'Unable to connect. Please check your internet connection and try again.';
+          el.style.display = 'block';
         });
+    }
+
+    // ===== Enter key =====
+    document.addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+
+    // ===== Cursor =====
+    var cursor = document.getElementById('cursor');
+    var ring = document.getElementById('cursorRing');
+    var mx = 0, my = 0, rx = 0, ry = 0;
+    if (cursor && ring) {
+      document.addEventListener('mousemove', function(e) {
+        mx = e.clientX; my = e.clientY;
+        cursor.style.left = mx + 'px';
+        cursor.style.top = my + 'px';
+      });
+      function animateRing() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + 'px';
+        ring.style.top = ry + 'px';
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+      document.querySelectorAll('a, button, .pw-toggle').forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+          cursor.style.width = '16px';
+          cursor.style.height = '16px';
+          ring.style.width = '50px';
+          ring.style.height = '50px';
+        });
+        el.addEventListener('mouseleave', function() {
+          cursor.style.width = '10px';
+          cursor.style.height = '10px';
+          ring.style.width = '36px';
+          ring.style.height = '36px';
+        });
+      });
     }
   </script>
 </body>
