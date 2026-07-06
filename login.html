@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Complispect</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f2eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .login-box {
+      background: #fff;
+      border-radius: 8px;
+      padding: 40px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .login-box h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      letter-spacing: 0.04em;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .login-box .sub {
+      text-align: center;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #999;
+      margin-bottom: 4px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #ede9df;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      transition: border 0.2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #e8401c;
+    }
+    .btn-signal {
+      width: 100%;
+      background: #e8401c;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-signal:hover { background: #c02f0f; }
+    .btn-signal:disabled { opacity:0.6; cursor:not-allowed; }
+    .error-msg {
+      color: #e8401c;
+      font-size: 12px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>COMPLISPECT</h1>
+    <div class="sub">Compliance Platform</div>
+    <div id="loginError" class="error-msg"></div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter your username" autocomplete="username" />
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password" />
+    </div>
+    <button class="btn-signal" id="loginBtn" onclick="doLogin()">Log In →</button>
+    <p style="text-align:center; margin-top:16px; font-size:12px; color:#999;">
+      New user? <a href="#" style="color:#e8401c; text-decoration:none;">Contact support</a>
+    </p>
+  </div>
+  <script>
+    // Get Web App URL from deployment; fallback to relative path.
+    // You should set this in the deployment or hardcode.
+    var WEBAPP_URL = ''; // will be set by backend or by user
+
+    // Auto-detect if running inside Apps Script web app
+    if (window.location.href.indexOf('exec') !== -1) {
+      WEBAPP_URL = window.location.href.split('?')[0];
+    } else {
+      // Fallback: you can set a default or prompt user
+      // For development, we use a placeholder that should be replaced.
+      WEBAPP_URL = 'YOUR_WEBAPP_URL'; // replace with actual deployment URL
+    }
+
+    document.getElementById('password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doLogin();
+    });
+    document.getElementById('username').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    function doLogin() {
+      var user = document.getElementById('username').value.trim();
+      var pass = document.getElementById('password').value.trim();
+      var error = document.getElementById('loginError');
+      error.style.display = 'none';
+
+      if (!user || !pass) {
+        error.textContent = 'Please enter both username and password.';
+        error.style.display = 'block';
+        return;
+      }
+
+      var btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Logging in...';
+
+      // Use GET with query params for simplicity; POST is also supported.
+      var url = WEBAPP_URL + '?action=login&username=' + encodeURIComponent(user) + '&password=' + encodeURIComponent(pass);
+      fetch(url)
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.success) {
+            // Store token and role
+            sessionStorage.setItem('ctoken', data.token);
+            sessionStorage.setItem('cid', data.clientId);
+            sessionStorage.setItem('role', data.role || 'client');
+            sessionStorage.setItem('cname', data.clientName || '');
+            sessionStorage.setItem('company', data.companyName || '');
+            // Redirect to dashboard
+            window.location.href = 'dashboard.html';
+          } else {
+            error.textContent = data.error || 'Invalid credentials.';
+            error.style.display = 'block';
+            btn.disabled = false;
+            btn.innerHTML = 'Log In →';
+          }
+        })
+        .catch(function(err) {
+          error.textContent = 'Connection error. Please try again.';
+          error.style.display = 'block';
+          btn.disabled = false;
+          btn.innerHTML = 'Log In →';
+        });
+    }
+  </script>
+</body>
+</html>
