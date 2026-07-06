@@ -4,153 +4,1518 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Complispect | Compliance Platform</title>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    /* Reset & base */
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background: #f5f2eb;
-      color: #0a0a0f;
-      line-height: 1.6;
+    /* ----- Shared CSS (from Apps Script) ----- */
+    @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=DM+Mono:wght@400;500&display=swap");
+    :root {
+      --ink: #0a0a0f;
+      --paper: #f5f2eb;
+      --cream: #ede9df;
+      --signal: #e8401c;
+      --signal-dark: #c02f0f;
+      --safe: #1a7a4a;
+      --warn: #d97b00;
+      --steel: #1c2b3a;
+      --steel-light: #2d4459;
+      --mist: #8a9aaa;
+      --rule: rgba(10,10,15,0.1);
     }
-    .container { max-width:1200px; margin:0 auto; padding:0 24px; }
-    header {
+    *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "DM Sans", sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      overflow-x: hidden;
+      cursor: none;
+    }
+    .cursor {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: var(--signal);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.2s, height 0.2s, background 0.2s;
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--signal);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease, width 0.3s, height 0.3s, opacity 0.3s;
+      opacity: 0.5;
+    }
+    .ticker {
+      background: var(--signal);
+      color: #fff;
+      padding: 9px 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .ticker-inner {
+      display: inline-block;
+      animation: ticker 28s linear infinite;
+      font-family: "DM Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+    .ticker-inner span { margin: 0 40px; opacity: 0.85; }
+    .ticker-inner span::before { content: "●"; margin-right: 12px; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--paper);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 6vw;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+    .nav-logo {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-badge {
+      background: var(--steel);
+      color: #fff;
+      font-family: "DM Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 3px 7px;
+      border-radius: 2px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.65;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 1; }
+    .nav-cta {
+      background: var(--signal) !important;
+      color: #fff !important;
+      opacity: 1 !important;
+      padding: 9px 20px;
+      border-radius: 3px;
+      font-weight: 600 !important;
+      font-size: 13px !important;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--signal-dark) !important; }
+
+    .btn-primary {
+      background: var(--signal);
+      color: #fff;
+      padding: 14px 32px;
+      border-radius: 3px;
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.2s, transform 0.15s;
+      border: none;
+      cursor: none;
+    }
+    .btn-primary:hover { background: var(--signal-dark); transform: translateY(-1px); }
+    .btn-ghost {
+      color: var(--ink);
+      padding: 14px 24px;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--rule);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--ink); background: var(--cream); }
+
+    /* ----- Homepage specific ----- */
+    .hero {
+      min-height: 92vh;
+      padding: 0 6vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(var(--rule) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--rule) 1px, transparent 1px);
+      background-size: 60px 60px;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+    .hero-bg-blob {
+      position: absolute;
+      right: -10%;
+      top: 10%;
+      width: 55vw;
+      height: 55vw;
+      background: radial-gradient(ellipse at center, rgba(232,64,28,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-left { position: relative; z-index: 2; }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--cream);
+      border: 1px solid var(--rule);
+      padding: 6px 14px;
+      border-radius: 2px;
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      color: var(--mist);
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.6s 0.2s forwards;
+    }
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--signal);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    .hero-headline {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(52px, 6.5vw, 96px);
+      line-height: 0.95;
+      letter-spacing: 0.01em;
+      color: var(--ink);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.35s forwards;
+    }
+    .hero-headline .accent { color: var(--signal); }
+    .hero-headline .underline-word {
+      position: relative;
+      display: inline-block;
+    }
+    .hero-headline .underline-word::after {
+      content: "";
+      position: absolute;
+      bottom: 4px;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--signal);
+      transform: scaleX(0);
+      transform-origin: left;
+      animation: underlineIn 0.5s 1s forwards;
+    }
+    @keyframes underlineIn { to { transform: scaleX(1); } }
+    .hero-sub {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--ink);
+      opacity: 0;
+      animation: fadeUp 0.7s 0.5s forwards;
+      max-width: 520px;
+      margin-bottom: 40px;
+    }
+    .hero-sub strong { font-weight: 600; }
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.65s forwards;
+      margin-bottom: 52px;
+    }
+    .hero-trust {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.8s forwards;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--mist);
+    }
+    .trust-item svg { color: var(--safe); }
+
+    .hero-right {
+      position: relative;
+      z-index: 2;
+      opacity: 0;
+      animation: fadeIn 0.8s 0.8s forwards;
+    }
+    .dashboard-mock {
+      background: var(--steel);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(10,10,15,0.25), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+    .mock-titlebar {
+      background: var(--steel-light);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .mock-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .mock-dot.r { background: #ff5f57; }
+    .mock-dot.y { background: #ffbd2e; }
+    .mock-dot.g { background: #28c840; }
+    .mock-title {
+      font-family: "DM Mono", monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      margin-left: 8px;
+      letter-spacing: 0.08em;
+    }
+    .mock-body { padding: 20px; }
+    .mock-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 24px 0;
-      border-bottom: 1px solid rgba(10,10,15,0.1);
+      margin-bottom: 20px;
     }
-    .logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 0.04em;
-      text-decoration: none;
-      color: #0a0a0f;
+    .mock-client-name {
+      font-family: "DM Mono", monospace;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.1em;
     }
-    .logo span { color: #e8401c; }
-    .logo-badge {
-      background: #1c2b3a;
-      color: #fff;
-      font-family: 'DM Mono', monospace;
-      font-size: 9px;
-      padding: 3px 7px;
+    .mock-status-badge {
+      background: rgba(26,122,74,0.25);
+      color: #4ade80;
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      padding: 4px 10px;
       border-radius: 2px;
-      margin-left: 8px;
-      vertical-align: middle;
+      letter-spacing: 0.08em;
     }
-    nav a {
-      margin-left: 24px;
-      text-decoration: none;
-      font-weight: 500;
-      color: #0a0a0f;
-      opacity: 0.7;
-      transition: opacity 0.2s;
+    .mock-stat-row {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 10px;
+      margin-bottom: 20px;
     }
-    nav a:hover { opacity:1; }
-    .btn-primary {
-      background: #e8401c;
+    .mock-stat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+    .mock-stat-num {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 28px;
       color: #fff;
-      padding: 10px 24px;
-      border-radius: 3px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-block;
-      transition: background 0.2s;
+      letter-spacing: 0.02em;
+      display: block;
     }
-    .btn-primary:hover { background: #c02f0f; }
-    .hero {
+    .mock-stat-label {
+      font-size: 9px;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: "DM Mono", monospace;
+    }
+    .mock-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .mock-item {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .mock-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mock-item-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ind-green { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+    .ind-yellow { background: #fbbf24; box-shadow: 0 0 6px #fbbf24; animation: blink 1.5s infinite; }
+    .ind-red { background: #f87171; box-shadow: 0 0 6px #f87171; animation: blink 0.8s infinite; }
+    .mock-item-name {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+    }
+    .mock-item-days {
+      font-family: "DM Mono", monospace;
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+    }
+    .mock-item-days.urgent { color: #f87171; }
+    .mock-item-days.warn { color: #fbbf24; }
+    .mock-footer {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .mock-footer-text {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 0.08em;
+    }
+    .mock-alert-sent {
+      background: rgba(232,64,28,0.15);
+      color: #f87171;
+      font-family: "DM Mono", monospace;
+      font-size: 9px;
+      padding: 3px 8px;
+      border-radius: 2px;
+      letter-spacing: 0.08em;
+      animation: blink 2s infinite;
+    }
+    .float-alert {
+      position: absolute;
+      bottom: -20px;
+      left: -30px;
+      background: var(--ink);
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 16px 40px rgba(10,10,15,0.3);
+      animation: floatBob 3s ease-in-out infinite;
+      border: 1px solid rgba(255,255,255,0.08);
+      min-width: 210px;
+    }
+    @keyframes floatBob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    .float-icon {
+      width: 34px;
+      height: 34px;
+      background: rgba(232,64,28,0.15);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .float-text { font-size: 12px; }
+    .float-text strong { display: block; font-weight: 600; font-size: 13px; }
+    .float-text span { color: rgba(255,255,255,0.5); font-size: 11px; }
+
+    .stats-band {
+      background: var(--steel);
+      padding: 48px 6vw;
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 1px;
+      position: relative;
+    }
+    .stats-band::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(232,64,28,0.05) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .stat-block {
+      padding: 28px 32px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+    }
+    .stat-block:last-child { border-right: none; }
+    .stat-num {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 52px;
+      color: #fff;
+      letter-spacing: 0.02em;
+      line-height: 1;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .stat-num .signal { color: var(--signal); }
+    .stat-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.45);
+      line-height: 1.5;
+      max-width: 180px;
+    }
+
+    .section {
+      padding: 100px 6vw;
+      position: relative;
+    }
+    .section-label {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--signal);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::after {
+      content: "";
+      flex: 1;
+      max-width: 40px;
+      height: 1px;
+      background: var(--signal);
+      opacity: 0.4;
+    }
+    .section-headline {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(36px, 4.5vw, 64px);
+      line-height: 1;
+      letter-spacing: 0.01em;
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--mist);
+      max-width: 500px;
+      line-height: 1.65;
+      margin-bottom: 60px;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+    }
+    .step-card {
+      background: var(--paper);
+      padding: 40px 32px;
+      position: relative;
+      transition: background 0.25s;
+    }
+    .step-card:hover { background: var(--cream); }
+    .step-number {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 80px;
+      color: var(--rule);
+      line-height: 1;
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      letter-spacing: -0.02em;
+      transition: color 0.25s;
+    }
+    .step-card:hover .step-number { color: rgba(232,64,28,0.12); }
+    .step-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--ink);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+    .step-title { font-size: 17px; font-weight: 600; margin-bottom: 10px; }
+    .step-desc { font-size: 14px; color: var(--mist); line-height: 1.6; }
+
+    .who-section { background: var(--cream); padding: 100px 6vw; }
+    .industries-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 20px;
+      margin-top: 60px;
+    }
+    .industry-card {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 32px 28px;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .industry-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(10,10,15,0.1);
+    }
+    .industry-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--signal);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s;
+    }
+    .industry-card:hover::before { transform: scaleX(1); }
+    .industry-emoji { font-size: 32px; margin-bottom: 16px; display: block; }
+    .industry-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .industry-country {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      color: var(--mist);
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .industry-items { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .industry-items li {
+      font-size: 12px;
+      color: var(--mist);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .industry-items li::before { content: "→"; color: var(--signal); font-size: 11px; flex-shrink: 0; }
+
+    .pain-section {
+      padding: 100px 6vw;
+      background: var(--ink);
+      color: #fff;
+    }
+    .pain-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 60px;
       align-items: center;
-      padding: 80px 0;
+      margin-top: 60px;
     }
-    .hero h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 56px;
+    .pain-list { display: flex; flex-direction: column; gap: 20px; }
+    .pain-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px 24px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+    .pain-item:hover { background: rgba(255,255,255,0.06); }
+    .pain-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+    .pain-title { font-size: 15px; font-weight: 600; margin-bottom: 5px; color: #fff; }
+    .pain-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .solution-panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 40px;
+    }
+    .solution-headline {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 42px;
+      letter-spacing: 0.01em;
+      margin-bottom: 24px;
+      line-height: 1.05;
+    }
+    .solution-headline .signal { color: var(--signal); }
+    .solution-list { display: flex; flex-direction: column; gap: 16px; }
+    .solution-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.5;
+    }
+    .solution-check {
+      width: 20px;
+      height: 20px;
+      background: var(--signal);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+      font-size: 10px;
+    }
+
+    .alerts-section { padding: 100px 6vw; }
+    .alerts-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 16px;
+      margin-top: 60px;
+    }
+    .alert-card {
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: border-color 0.25s, transform 0.25s;
+      background: var(--paper);
+    }
+    .alert-card:hover { border-color: var(--signal); transform: translateY(-4px); }
+    .alert-icon-wrap {
+      width: 56px;
+      height: 56px;
+      background: var(--cream);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 16px;
+    }
+    .alert-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+    .alert-desc { font-size: 13px; color: var(--mist); line-height: 1.55; }
+    .alert-badge {
+      display: inline-block;
+      margin-top: 12px;
+      background: var(--cream);
+      font-family: "DM Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      padding: 3px 8px;
+      border-radius: 2px;
+      color: var(--mist);
+      text-transform: uppercase;
+    }
+
+    .cadence-section { background: var(--cream); padding: 100px 6vw; }
+    .cadence-timeline {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin-top: 60px;
+      position: relative;
+    }
+    .cadence-timeline::before {
+      content: "";
+      position: absolute;
+      top: 36px;
+      left: 60px;
+      right: 60px;
+      height: 2px;
+      background: var(--rule);
+      z-index: 0;
+    }
+    .cadence-step {
+      flex: 1;
+      text-align: center;
+      padding: 0 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .cadence-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      border: 2px solid;
+      flex-direction: column;
+      gap: 0;
+    }
+    .cadence-circle .days {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 24px;
       line-height: 1;
       letter-spacing: 0.02em;
     }
-    .hero h1 .accent { color: #e8401c; }
-    .hero p {
-      font-size: 18px;
-      font-weight: 300;
-      color: #555;
-      margin: 20px 0 30px;
-      max-width: 480px;
+    .cadence-circle .day-label {
+      font-family: "DM Mono", monospace;
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      opacity: 0.7;
     }
-    .features {
+    .c-safe { background: rgba(26,122,74,0.08); border-color: var(--safe); color: var(--safe); }
+    .c-warn { background: rgba(217,123,0,0.08); border-color: var(--warn); color: var(--warn); }
+    .c-signal { background: rgba(232,64,28,0.08); border-color: var(--signal); color: var(--signal); }
+    .c-urgent { background: var(--signal); border-color: var(--signal); color: #fff; }
+    .c-overdue { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .cadence-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .cadence-channels { font-size: 11px; color: var(--mist); line-height: 1.5; }
+
+    .pricing-section { padding: 100px 6vw; }
+    .pricing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
-      gap: 24px;
-      margin: 60px 0;
+      grid-template-columns: repeat(3,1fr);
+      gap: 20px;
+      margin-top: 60px;
+      align-items: start;
     }
-    .feature {
-      background: #fff;
-      border-radius: 8px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      border: 1px solid #ede9df;
+    .price-card {
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 40px 32px;
+      background: var(--paper);
+      position: relative;
+      transition: transform 0.25s, box-shadow 0.25s;
     }
-    .feature h3 { font-size: 18px; margin-bottom: 8px; }
-    .feature p { font-size: 14px; color: #666; }
-    .footer {
-      border-top: 1px solid #ede9df;
-      padding: 40px 0;
-      text-align: center;
-      color: #888;
+    .price-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(10,10,15,0.1); }
+    .price-card.featured {
+      background: var(--steel);
+      color: #fff;
+      border-color: transparent;
+      transform: scale(1.03);
+    }
+    .price-card.featured:hover { transform: scale(1.03) translateY(-6px); }
+    .price-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--signal);
+      color: #fff;
+      font-family: "DM Mono", monospace;
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .price-plan {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+    .price-amount {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 56px;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+    .price-amount sup {
+      font-size: 24px;
+      vertical-align: super;
+      font-family: "DM Sans", sans-serif;
+      font-weight: 300;
+    }
+    .price-period {
+      font-size: 13px;
+      opacity: 0.5;
+      margin-bottom: 28px;
+      font-weight: 300;
+    }
+    .price-divider {
+      height: 1px;
+      background: var(--rule);
+      margin-bottom: 24px;
+    }
+    .price-card.featured .price-divider { background: rgba(255,255,255,0.1); }
+    .price-features {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .price-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       font-size: 13px;
     }
-    @media (max-width:800px) {
-      .hero { grid-template-columns:1fr; text-align:center; }
-      .hero p { margin-left:auto; margin-right:auto; }
+    .price-feature.muted { opacity: 0.35; }
+    .feat-check { color: var(--safe); font-size: 14px; flex-shrink: 0; }
+    .feat-x { color: var(--mist); font-size: 14px; flex-shrink: 0; }
+    .price-cta {
+      display: block;
+      text-align: center;
+      padding: 13px 24px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .price-cta.dark { background: var(--ink); color: #fff; }
+    .price-cta.dark:hover { background: var(--steel); }
+    .price-cta.red { background: var(--signal); color: #fff; }
+    .price-cta.red:hover { background: var(--signal-dark); }
+    .price-cta.outline {
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    .price-cta.outline:hover { background: rgba(255,255,255,0.08); }
+
+    .testimonials-section { background: var(--cream); padding: 100px 6vw; }
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 20px;
+      margin-top: 60px;
+    }
+    .testimonial-card {
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 32px 28px;
+      transition: transform 0.25s;
+    }
+    .testimonial-card:hover { transform: translateY(-4px); }
+    .testimonial-stars { color: #f59e0b; font-size: 14px; margin-bottom: 16px; letter-spacing: 2px; }
+    .testimonial-quote {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--ink);
+      margin-bottom: 20px;
+      font-style: italic;
+      font-weight: 300;
+    }
+    .testimonial-divider { height: 1px; background: var(--rule); margin-bottom: 16px; }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .author-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .author-name { font-size: 13px; font-weight: 600; }
+    .author-role { font-size: 11px; color: var(--mist); }
+
+    .faq-section { padding: 100px 6vw; }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 60px;
+    }
+    .faq-item {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: 20px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      background: var(--paper);
+      transition: background 0.2s;
+      user-select: none;
+    }
+    .faq-q:hover { background: var(--cream); }
+    .faq-toggle {
+      width: 22px;
+      height: 22px;
+      background: var(--cream);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      transition: transform 0.25s, background 0.2s;
+    }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); background: var(--signal); color: #fff; }
+    .faq-a {
+      font-size: 13px;
+      color: var(--mist);
+      line-height: 1.65;
+      padding: 0 24px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.3s;
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding: 0 24px 20px; }
+
+    .cta-section {
+      background: var(--signal);
+      padding: 100px 6vw;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .cta-section::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .cta-headline {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: clamp(42px, 6vw, 88px);
+      color: #fff;
+      letter-spacing: 0.01em;
+      line-height: 0.95;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .cta-sub {
+      font-size: 17px;
+      color: rgba(255,255,255,0.75);
+      font-weight: 300;
+      margin-bottom: 40px;
+      position: relative;
+      z-index: 1;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .btn-white {
+      background: #fff;
+      color: var(--signal);
+      padding: 14px 32px;
+      border-radius: 3px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-white:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    .btn-white-ghost {
+      background: transparent;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 3px;
+      font-weight: 500;
+      font-size: 15px;
+      text-decoration: none;
+      border: 2px solid rgba(255,255,255,0.4);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-white-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+    /* Footer */
+    footer {
+      background: var(--ink);
+      color: rgba(255,255,255,0.5);
+      padding: 60px 6vw 32px;
+    }
+    .footer-top {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 48px;
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .footer-brand {
+      font-family: "Bebas Neue", sans-serif;
+      font-size: 22px;
+      color: #fff;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .footer-tagline {
+      font-size: 13px;
+      line-height: 1.6;
+      max-width: 240px;
+    }
+    .footer-col-title {
+      font-family: "DM Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 16px;
+    }
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .footer-links a {
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-legal {
+      display: flex;
+      gap: 20px;
+    }
+    .footer-legal a {
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-legal a:hover { color: rgba(255,255,255,0.7); }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.7); } }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    .reveal { opacity:0; transform: translateY(30px); transition: opacity 0.6s, transform 0.6s; }
+    .reveal.visible { opacity:1; transform: translateY(0); }
+
+    @media (max-width:1024px) {
+      .hero { grid-template-columns:1fr; min-height:auto; padding:60px 6vw; }
+      .hero-right { display:none; }
+      .stats-band { grid-template-columns:repeat(2,1fr); }
+      .stat-block { border-bottom:1px solid rgba(255,255,255,0.06); }
+      .steps-grid { grid-template-columns:repeat(2,1fr); }
+      .industries-grid { grid-template-columns:repeat(2,1fr); }
+      .pain-grid { grid-template-columns:1fr; }
+      .alerts-grid { grid-template-columns:repeat(2,1fr); }
+      .pricing-grid { grid-template-columns:1fr; }
+      .price-card.featured { transform:none; }
+      .testimonials-grid { grid-template-columns:1fr; }
+      .faq-grid { grid-template-columns:1fr; }
+    }
+    @media (max-width:640px) {
+      .stats-band { grid-template-columns:1fr; }
+      .steps-grid { grid-template-columns:1fr; }
+      .industries-grid { grid-template-columns:1fr; }
+      .alerts-grid { grid-template-columns:1fr; }
+      .cadence-timeline { flex-direction:column; align-items:flex-start; gap:20px; }
+      .cadence-timeline::before { display:none; }
+      .nav-links { display:none; }
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display:none; }
+      .footer-top { grid-template-columns:1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <a href="#" class="logo">COMPLISPECT<span>.</span><span class="logo-badge">PLATFORM</span></a>
-      <nav>
-        <a href="#features">Features</a>
-        <a href="login.html">Login</a>
-        <a href="login.html" class="btn-primary">Start Free Trial</a>
-      </nav>
-    </header>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-    <section class="hero">
-      <div>
-        <h1>Your Compliance <span class="accent">Command Center</span></h1>
-        <p>Automate reminders, manage licenses, track training, log incidents, and stay audit‑ready — all in one place.</p>
-        <a href="login.html" class="btn-primary">Get Started →</a>
-      </div>
-      <div style="background:#ede9df; border-radius:12px; padding:40px; text-align:center; font-size:80px; line-height:1;">
-        🛡️
-        <p style="font-size:16px; color:#555; margin-top:12px;">Compliance made simple.</p>
-      </div>
-    </section>
-
-    <section id="features">
-      <h2 style="font-family:'Bebas Neue',sans-serif; font-size:36px; letter-spacing:0.02em; margin-bottom:24px;">Everything you need</h2>
-      <div class="features">
-        <div class="feature"><h3>📅 Compliance Calendar</h3><p>See all upcoming deadlines at a glance.</p></div>
-        <div class="feature"><h3>✅ Task Management</h3><p>Assign and track tasks with priorities.</p></div>
-        <div class="feature"><h3>📄 Document Repository</h3><p>Store policies, certificates, and evidence.</p></div>
-        <div class="feature"><h3>📋 License Tracking</h3><p>Monitor renewals and expiration dates.</p></div>
-        <div class="feature"><h3>👥 Vendor Management</h3><p>Track contracts and certifications.</p></div>
-        <div class="feature"><h3>🎓 Employee Certifications</h3><p>Monitor training completion and expiry.</p></div>
-        <div class="feature"><h3>🚨 Incident Log</h3><p>Report and resolve compliance incidents.</p></div>
-        <div class="feature"><h3>🔍 Audit Evidence</h3><p>Collect and organise audit materials.</p></div>
-        <div class="feature"><h3>📊 Compliance Score</h3><p>Real‑time score from checklists.</p></div>
-        <div class="feature"><h3>⚠️ Risk Assessment</h3><p>Custom questionnaires to evaluate risks.</p></div>
-      </div>
-    </section>
-
-    <footer class="footer">
-      <p>&copy; 2026 Ascendia Core Ltd. All rights reserved.</p>
-    </footer>
+  <div class="ticker">
+    <div class="ticker-inner">
+      <span>NEVER MISS A DEADLINE</span>
+      <span>AUTOMATED COMPLIANCE TRACKING</span>
+      <span>UK · US · CANADA · AUSTRALIA · NIGERIA</span>
+      <span>14‑DAY FREE TRIAL</span>
+      <span>NURSERIES · DENTAL · RESTAURANTS · CARE HOMES</span>
+      <span>YOUR COMPLIANCE. OUR WATCH.</span>
+      <span>NEVER MISS A DEADLINE</span>
+      <span>AUTOMATED COMPLIANCE TRACKING</span>
+      <span>UK · US · CANADA · AUSTRALIA · NIGERIA</span>
+      <span>14‑DAY FREE TRIAL</span>
+      <span>NURSERIES · DENTAL · RESTAURANTS · CARE HOMES</span>
+      <span>YOUR COMPLIANCE. OUR WATCH.</span>
+    </div>
   </div>
+
+  <nav>
+    <a href="index.html" class="nav-logo">
+      <span>COMPLISPECT</span>
+      <span class="logo-badge">TRACKER</span>
+    </a>
+    <div class="nav-links">
+      <a href="#how">How It Works</a>
+      <a href="#industries">Industries</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="login.html">Login</a>
+      <a href="register.html" class="nav-cta">Start Free Trial →</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-bg-blob"></div>
+    <div class="hero-left">
+      <div class="hero-eyebrow"><span class="eyebrow-dot"></span>Compliance Automation Platform</div>
+      <h1 class="hero-headline">
+        ONE MISSED<br>DEADLINE CAN<br><span class="accent">COST YOU</span><br><span class="underline-word">EVERYTHING.</span>
+      </h1>
+      <p class="hero-sub">
+        Complispect monitors every licence, certificate, and regulatory deadline for your business — sending <strong>automatic alerts</strong> at 30, 14, and 7 days before anything expires.<br><br>No spreadsheets. No surprises. No penalties.
+      </p>
+      <div class="hero-actions">
+        <a href="register.html" class="btn-primary">
+          Start Free 14‑Day Trial
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#how" class="btn-ghost">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10,8 16,12 10,16"/></svg>See How It Works
+        </a>
+      </div>
+      <div class="hero-trust">
+        <div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>No contract</div>
+        <div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Cancel anytime</div>
+        <div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Setup in 10 minutes</div>
+        <div class="trust-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Alerts to your phone</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="dashboard-mock">
+        <div class="mock-titlebar"><div class="mock-dot r"></div><div class="mock-dot y"></div><div class="mock-dot g"></div><span class="mock-title">COMPLISPECT — CLIENT DASHBOARD</span></div>
+        <div class="mock-body">
+          <div class="mock-header-row"><span class="mock-client-name">CSP-202506-001 · HAPPY DAYS NURSERY</span><span class="mock-status-badge">● ACTIVE</span></div>
+          <div class="mock-stat-row">
+            <div class="mock-stat"><span class="mock-stat-num">12</span><span class="mock-stat-label">Tracked</span></div>
+            <div class="mock-stat"><span class="mock-stat-num" style="color:#4ade80">9</span><span class="mock-stat-label">Compliant</span></div>
+            <div class="mock-stat"><span class="mock-stat-num" style="color:#f87171">2</span><span class="mock-stat-label">Urgent</span></div>
+          </div>
+          <div class="mock-items">
+            <div class="mock-item"><div class="mock-item-left"><div class="mock-item-indicator ind-red"></div><span class="mock-item-name">Food Hygiene Certificate</span></div><span class="mock-item-days urgent">6 days</span></div>
+            <div class="mock-item"><div class="mock-item-left"><div class="mock-item-indicator ind-yellow"></div><span class="mock-item-name">Staff DBS Checks (x3)</span></div><span class="mock-item-days warn">18 days</span></div>
+            <div class="mock-item"><div class="mock-item-left"><div class="mock-item-indicator ind-yellow"></div><span class="mock-item-name">Public Liability Insurance</span></div><span class="mock-item-days warn">24 days</span></div>
+            <div class="mock-item"><div class="mock-item-left"><div class="mock-item-indicator ind-green"></div><span class="mock-item-name">Fire Safety Certificate</span></div><span class="mock-item-days">187 days</span></div>
+            <div class="mock-item"><div class="mock-item-left"><div class="mock-item-indicator ind-green"></div><span class="mock-item-name">Ofsted Registration</span></div><span class="mock-item-days">Ongoing</span></div>
+          </div>
+          <div class="mock-footer"><span class="mock-footer-text">LAST SCAN: TODAY 08:00 UTC</span><span class="mock-alert-sent">3 ALERTS SENT</span></div>
+        </div>
+      </div>
+      <div class="float-alert"><div class="float-icon">⚠️</div><div class="float-text"><strong>Reminder Sent</strong><span>Food Hygiene · 6 days left</span></div></div>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <div class="stats-band reveal">
+    <div class="stat-block"><span class="stat-num">£<span class="signal">5K</span>+</span><p class="stat-desc">Average UK fine for an expired food hygiene certificate</p></div>
+    <div class="stat-block"><span class="stat-num"><span class="signal">22</span>%</span><p class="stat-desc">Reduction in client churn when automated reminders are active</p></div>
+    <div class="stat-block"><span class="stat-num"><span class="signal">15</span>hrs</span><p class="stat-desc">Average hours saved per month on manual compliance tracking</p></div>
+    <div class="stat-block"><span class="stat-num"><span class="signal">10</span>min</span><p class="stat-desc">Time to get your compliance tracker fully set up and running</p></div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <section class="section" id="how">
+    <div class="section-label">How It Works</div>
+    <h2 class="section-headline">FROM SIGNUP TO<br>PROTECTED IN 4 STEPS</h2>
+    <p class="section-sub">No technical knowledge needed. We handle everything — you just stay compliant.</p>
+    <div class="steps-grid reveal">
+      <div class="step-card"><span class="step-number">01</span><div class="step-icon">📋</div><h3 class="step-title">Tell Us Your Business</h3><p class="step-desc">Fill a simple 5‑minute onboarding form. Select your industry, location, and the compliance items relevant to your business. We pre‑load the standard items for you.</p></div>
+      <div class="step-card"><span class="step-number">02</span><div class="step-icon">⚙️</div><h3 class="step-title">We Build Your Tracker</h3><p class="step-desc">We configure your personal compliance dashboard with all your deadlines, renewal cycles, and alert preferences. Your tracker is live within 24 hours.</p></div>
+      <div class="step-card"><span class="step-number">03</span><div class="step-icon">🔔</div><h3 class="step-title">Alerts Come to You</h3><p class="step-desc">Our system scans your deadlines every day and sends automatic reminders to your email, WhatsApp, or SMS at 30, 14, 7, and 1 day before anything expires.</p></div>
+      <div class="step-card"><span class="step-number">04</span><div class="step-icon">✅</div><h3 class="step-title">Stay Compliant Forever</h3><p class="step-desc">Mark items complete. Upload evidence. View your dashboard anytime. Your tracker automatically recalculates the next renewal cycle — no manual updates needed.</p></div>
+    </div>
+  </section>
+
+  <!-- WHO IT'S FOR -->
+  <section class="who-section" id="industries">
+    <div class="section-label">Industries</div>
+    <h2 class="section-headline">BUILT FOR EVERY<br>REGULATED BUSINESS</h2>
+    <p class="section-sub">We track the exact compliance requirements for your industry and country — pre‑loaded and ready to go.</p>
+    <div class="industries-grid reveal">
+      <div class="industry-card"><span class="industry-emoji">🧒</span><h3 class="industry-title">Childcare & Nurseries</h3><p class="industry-country">🇬🇧 UK · 🇺🇸 US · 🇨🇦 Canada</p><ul class="industry-items"><li>Ofsted / State licensing renewal</li><li>Staff DBS / background checks</li><li>First aid certificates</li><li>Safeguarding training</li><li>Fire safety & insurance</li></ul></div>
+      <div class="industry-card"><span class="industry-emoji">🍽️</span><h3 class="industry-title">Restaurants & Food</h3><p class="industry-country">🇬🇧 UK · 🇺🇸 US · 🇦🇺 Australia</p><ul class="industry-items"><li>Food hygiene certification</li><li>Health & safety inspection</li><li>Gas & electrical certificates</li><li>Public liability insurance</li><li>Premises licence renewal</li></ul></div>
+      <div class="industry-card"><span class="industry-emoji">🦷</span><h3 class="industry-title">Dental & Medical</h3><p class="industry-country">🇺🇸 US · 🇬🇧 UK · 🇨🇦 Canada</p><ul class="industry-items"><li>State licence renewal</li><li>DEA registration (US)</li><li>Malpractice insurance</li><li>CME credit hours tracking</li><li>HIPAA / CQC compliance</li></ul></div>
+      <div class="industry-card"><span class="industry-emoji">🏠</span><h3 class="industry-title">Care Homes & Social Care</h3><p class="industry-country">🇬🇧 UK · 🇺🇸 US</p><ul class="industry-items"><li>CQC registration renewal</li><li>Staff training records</li><li>DBS checks (all staff)</li><li>Medication management cert</li><li>Fire safety & building compliance</li></ul></div>
+      <div class="industry-card"><span class="industry-emoji">🏢</span><h3 class="industry-title">SMEs & Businesses</h3><p class="industry-country">🇬🇧 UK · 🇺🇸 US · 🇳🇬 Nigeria · 🇦🇺 AU</p><ul class="industry-items"><li>CAC / Companies House returns</li><li>VAT & PAYE filings</li><li>Employer liability insurance</li><li>Business licence renewal</li><li>Health & safety policy review</li></ul></div>
+      <div class="industry-card"><span class="industry-emoji">💊</span><h3 class="industry-title">Pharmacy & Healthcare</h3><p class="industry-country">🇬🇧 UK · 🇺🇸 US · 🇦🇺 Australia</p><ul class="industry-items"><li>Pharmacist licence renewal</li><li>GPhC / state board registration</li><li>Controlled drugs compliance</li><li>Professional indemnity insurance</li><li>Premises licence inspection</li></ul></div>
+    </div>
+  </section>
+
+  <!-- PAIN vs SOLUTION -->
+  <section class="pain-section">
+    <div class="section-label" style="color:rgba(255,255,255,0.4)">The Problem</div>
+    <h2 class="section-headline" style="color:#fff">WHY BUSINESSES<br>GET CAUGHT OUT</h2>
+    <div class="pain-grid reveal">
+      <div class="pain-list">
+        <div class="pain-item"><div class="pain-icon">📅</div><div><p class="pain-title">Manual tracking fails</p><p class="pain-desc">Spreadsheets and calendar reminders don't follow up, escalate, or adapt to your renewal cycles automatically.</p></div></div>
+        <div class="pain-item"><div class="pain-icon">📬</div><div><p class="pain-title">Renewal notices get buried</p><p class="pain-desc">Official renewal letters land in crowded inboxes and get missed during busy periods. By the time you notice, it's too late.</p></div></div>
+        <div class="pain-item"><div class="pain-icon">💸</div><div><p class="pain-title">Fines arrive without warning</p><p class="pain-desc">Regulators don't give second chances. One missed deadline triggers immediate penalties, suspension, or closure.</p></div></div>
+        <div class="pain-item"><div class="pain-icon">🕐</div><div><p class="pain-title">No one has time to track everything</p><p class="pain-desc">The average regulated business has 8–15 active compliance obligations running on different cycles. Impossible to track manually.</p></div></div>
+      </div>
+      <div class="solution-panel">
+        <h3 class="solution-headline">COMPLISPECT <span class="signal">SOLVES</span> ALL OF THIS.</h3>
+        <div class="solution-list">
+          <div class="solution-item"><div class="solution-check">✓</div>Every deadline tracked automatically — no spreadsheet needed</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Escalating alerts sent to your email, WhatsApp, and SMS</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Personal dashboard showing every item's live status</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Renewal cycles auto‑calculated — set once, tracked forever</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Evidence storage — upload certificates directly to your tracker</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Daily system scan — your deadlines checked every single morning</div>
+          <div class="solution-item"><div class="solution-check">✓</div>Industry‑specific compliance checklists pre‑loaded for you</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALERT CHANNELS -->
+  <section class="alerts-section">
+    <div class="section-label">Alert Channels</div>
+    <h2 class="section-headline">WE REACH YOU<br>WHEREVER YOU ARE</h2>
+    <p class="section-sub">Alerts delivered through the channels you actually check — not just email.</p>
+    <div class="alerts-grid reveal">
+      <div class="alert-card"><div class="alert-icon-wrap">📧</div><h3 class="alert-title">Email Alerts</h3><p class="alert-desc">Professional reminders delivered to your inbox with full deadline details and action steps.</p><span class="alert-badge">All Plans</span></div>
+      <div class="alert-card"><div class="alert-icon-wrap">📱</div><h3 class="alert-title">WhatsApp Alerts</h3><p class="alert-desc">Instant messages sent directly to your WhatsApp — the highest open‑rate channel available.</p><span class="alert-badge">Standard & Premium</span></div>
+      <div class="alert-card"><div class="alert-icon-wrap">💬</div><h3 class="alert-title">SMS Alerts</h3><p class="alert-desc">Text message reminders for urgent and critical deadlines — works even without internet.</p><span class="alert-badge">Premium Only</span></div>
+      <div class="alert-card"><div class="alert-icon-wrap">📅</div><h3 class="alert-title">Calendar Sync</h3><p class="alert-desc">Deadlines pushed directly to your Google Calendar with automatic phone notifications.</p><span class="alert-badge">Standard & Premium</span></div>
+    </div>
+  </section>
+
+  <!-- CADENCE -->
+  <section class="cadence-section">
+    <div class="section-label">Alert Cadence</div>
+    <h2 class="section-headline">YOUR DEADLINE<br>NEVER SNEAKS UP ON YOU</h2>
+    <p class="section-sub">Our escalating alert system means you get the right level of urgency at the right time.</p>
+    <div class="cadence-timeline reveal">
+      <div class="cadence-step"><div class="cadence-circle c-safe"><span class="days">30</span><span class="day-label">DAYS</span></div><h4 class="cadence-title">Early Notice</h4><p class="cadence-channels">Email only<br>Plan your renewal</p></div>
+      <div class="cadence-step"><div class="cadence-circle c-warn"><span class="days">14</span><span class="day-label">DAYS</span></div><h4 class="cadence-title">Action Reminder</h4><p class="cadence-channels">Email + WhatsApp<br>Book your renewal</p></div>
+      <div class="cadence-step"><div class="cadence-circle c-signal"><span class="days">7</span><span class="day-label">DAYS</span></div><h4 class="cadence-title">Urgent Alert</h4><p class="cadence-channels">Email + WhatsApp<br>+ Calendar ping</p></div>
+      <div class="cadence-step"><div class="cadence-circle c-urgent"><span class="days">1</span><span class="day-label">DAY</span></div><h4 class="cadence-title">Critical Warning</h4><p class="cadence-channels">Email + WhatsApp<br>+ SMS</p></div>
+      <div class="cadence-step"><div class="cadence-circle c-overdue"><span class="days" style="font-size:16px">OVER</span><span class="day-label">DUE</span></div><h4 class="cadence-title">Daily Chase</h4><p class="cadence-channels">All channels daily<br>Until resolved</p></div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="pricing-section" id="pricing">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-headline">SIMPLE, HONEST<br>PRICING</h2>
+    <p class="section-sub">One fine costs more than 3 years of Complispect. Cancel any time — no contracts.</p>
+    <div class="pricing-grid reveal">
+      <!-- Starter -->
+      <div class="price-card">
+        <p class="price-plan">Starter</p>
+        <div class="price-amount"><sup>$</sup>29</div>
+        <p class="price-period">per month · billed monthly</p>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature"><span class="feat-check">✓</span> Up to 8 compliance items</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Email alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Personal dashboard</div>
+          <div class="price-feature"><span class="feat-check">✓</span> 30/14/7/1 day reminders</div>
+          <div class="price-feature muted"><span class="feat-x">✕</span> WhatsApp alerts</div>
+          <div class="price-feature muted"><span class="feat-x">✕</span> SMS alerts</div>
+          <div class="price-feature muted"><span class="feat-x">✕</span> Calendar sync</div>
+        </div>
+        <a href="register.html" class="price-cta dark">Get Started →</a>
+      </div>
+      <!-- Standard -->
+      <div class="price-card featured">
+        <div class="price-badge">Most Popular</div>
+        <p class="price-plan" style="color:rgba(255,255,255,0.4)">Standard</p>
+        <div class="price-amount"><sup>$</sup>49</div>
+        <p class="price-period" style="color:rgba(255,255,255,0.4)">per month · billed monthly</p>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature"><span class="feat-check">✓</span> Up to 20 compliance items</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Email alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Personal dashboard</div>
+          <div class="price-feature"><span class="feat-check">✓</span> 30/14/7/1 day reminders</div>
+          <div class="price-feature"><span class="feat-check">✓</span> WhatsApp alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Calendar sync</div>
+          <div class="price-feature muted"><span class="feat-x">✕</span> SMS alerts</div>
+        </div>
+        <a href="register.html" class="price-cta red">Start Free Trial →</a>
+      </div>
+      <!-- Premium -->
+      <div class="price-card">
+        <p class="price-plan">Premium</p>
+        <div class="price-amount"><sup>$</sup>99</div>
+        <p class="price-period">per month · billed monthly</p>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="price-feature"><span class="feat-check">✓</span> Unlimited compliance items</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Email alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Personal dashboard</div>
+          <div class="price-feature"><span class="feat-check">✓</span> 30/14/7/1 day reminders</div>
+          <div class="price-feature"><span class="feat-check">✓</span> WhatsApp alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Calendar sync</div>
+          <div class="price-feature"><span class="feat-check">✓</span> SMS alerts</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Evidence document storage</div>
+          <div class="price-feature"><span class="feat-check">✓</span> Priority support</div>
+        </div>
+        <a href="register.html" class="price-cta dark">Get Started →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-section">
+    <div class="section-label">Testimonials</div>
+    <h2 class="section-headline">BUSINESS OWNERS<br>WHO SLEEP BETTER NOW</h2>
+    <div class="testimonials-grid reveal">
+      <div class="testimonial-card"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"We nearly lost our Ofsted rating because a staff member's DBS check had expired and nobody noticed. Complispect caught it 30 days out. I can't imagine going back to managing this manually."</p><div class="testimonial-divider"></div><div class="testimonial-author"><div class="author-avatar" style="background:#1a7a4a">S</div><div><p class="author-name">Sarah M.</p><p class="author-role">Nursery Owner · Manchester, UK</p></div></div></div>
+      <div class="testimonial-card"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"As a dental practice owner in Texas, licence lapses are terrifying. Complispect sends me WhatsApp reminders 30 days out for every DEA renewal, state licence, and CME deadline. It's become essential."</p><div class="testimonial-divider"></div><div class="testimonial-author"><div class="author-avatar" style="background:#1c2b3a">D</div><div><p class="author-name">Dr. James K.</p><p class="author-role">Dental Practice Owner · Houston, TX</p></div></div></div>
+      <div class="testimonial-card"><div class="testimonial-stars">★★★★★</div><p class="testimonial-quote">"I manage three restaurants. Keeping track of food hygiene certs, fire safety, and gas certificates across all three was a nightmare. Now it's one dashboard and automatic alerts. Setup took 15 minutes."</p><div class="testimonial-divider"></div><div class="testimonial-author"><div class="author-avatar" style="background:#d97b00">M</div><div><p class="author-name">Mike T.</p><p class="author-role">Restaurant Group Owner · Bristol, UK</p></div></div></div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq-section" id="faq">
+    <div class="section-label">FAQ</div>
+    <h2 class="section-headline">QUESTIONS WE<br>HEAR MOST OFTEN</h2>
+    <div class="faq-grid reveal">
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to know my expiry dates to sign up?<span class="faq-toggle">+</span></div><div class="faq-a">Not at all. After signup we send you a simple compliance audit form. Fill in what you know — we handle the rest. For industry‑standard items we can pre‑populate common renewal cycles and follow up on any missing dates.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Which countries do you support?<span class="faq-toggle">+</span></div><div class="faq-a">We currently support businesses in the UK, United States, Canada, Australia, Ireland, New Zealand, and Nigeria. We have industry‑specific compliance checklists pre‑built for each country.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I receive my alerts?<span class="faq-toggle">+</span></div><div class="faq-a">Depending on your plan, alerts are delivered via email, WhatsApp message, SMS, and Google Calendar notifications. Our Standard and Premium plans include WhatsApp — the highest open‑rate channel available.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I add my own compliance items?<span class="faq-toggle">+</span></div><div class="faq-a">Yes. We pre‑load standard items for your industry, but you can add any custom compliance item — from insurance policies to internal training deadlines — with your own renewal cycle.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is there a contract or minimum term?<span class="faq-toggle">+</span></div><div class="faq-a">No contract, no minimum term. All plans are month‑to‑month and can be cancelled at any time with no penalty. We keep you because the service works, not because you're locked in.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How is my data kept secure?<span class="faq-toggle">+</span></div><div class="faq-a">Your compliance data is stored securely and is never shared with third parties. Each client's data is isolated and only accessible by you and our support team when you request assistance.</div></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" id="start">
+    <h2 class="cta-headline">YOUR COMPLIANCE.<br>OUR WATCH.</h2>
+    <p class="cta-sub">Start your free 14‑day trial today. No credit card required. Setup takes 10 minutes.</p>
+    <div class="cta-buttons">
+      <a href="register.html" class="btn-white">Start Free Trial — It's Free<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <a href="#how" class="btn-white-ghost">See How It Works</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand">COMPLISPECT</div>
+        <p class="footer-tagline">Automated compliance deadline tracking for regulated businesses across the UK, US, Canada, Australia, Nigeria and beyond.</p>
+      </div>
+      <div><p class="footer-col-title">Product</p><ul class="footer-links"><li><a href="#how">How It Works</a></li><li><a href="#industries">Industries</a></li><li><a href="#pricing">Pricing</a></li><li><a href="register.html">Free Trial</a></li></ul></div>
+      <div><p class="footer-col-title">Industries</p><ul class="footer-links"><li><a href="#">Childcare & Nurseries</a></li><li><a href="#">Restaurants & Food</a></li><li><a href="#">Healthcare & Dental</a></li><li><a href="#">Care Homes</a></li><li><a href="#">SMEs & Business</a></li></ul></div>
+      <div><p class="footer-col-title">Company</p><ul class="footer-links"><li><a href="#">About Ascendia</a></li><li><a href="#">Contact Us</a></li><li><a href="#">Support</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Ascendia Core Ltd. All rights reserved. Complispect is a product of Ascendia Core Ltd.</span>
+      <div class="footer-legal"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a></div>
+    </div>
+  </footer>
+
+  <script>
+    // Cursor animation
+    var cursor = document.getElementById('cursor');
+    var ring = document.getElementById('cursorRing');
+    var mx=0, my=0, rx=0, ry=0;
+    if (cursor && ring) {
+      document.addEventListener('mousemove', function(e) {
+        mx = e.clientX;
+        my = e.clientY;
+        cursor.style.left = mx + 'px';
+        cursor.style.top = my + 'px';
+      });
+      function animateRing() {
+        rx += (mx - rx) * 0.12;
+        ry += (my - ry) * 0.12;
+        ring.style.left = rx + 'px';
+        ring.style.top = ry + 'px';
+        requestAnimationFrame(animateRing);
+      }
+      animateRing();
+      document.querySelectorAll('a,button,.faq-q,.step-card,.industry-card,.price-card,.alert-card,.plan-card').forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+          cursor.style.width = '16px';
+          cursor.style.height = '16px';
+          ring.style.width = '50px';
+          ring.style.height = '50px';
+        });
+        el.addEventListener('mouseleave', function() {
+          cursor.style.width = '10px';
+          cursor.style.height = '10px';
+          ring.style.width = '36px';
+          ring.style.height = '36px';
+        });
+      });
+    }
+
+    // Scroll reveal
+    var reveals = document.querySelectorAll('.reveal');
+    var revObs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e, i) {
+        if (e.isIntersecting) {
+          setTimeout(function() { e.target.classList.add('visible'); }, i * 80);
+          revObs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(function(el) { revObs.observe(el); });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+      a.addEventListener('click', function(e) {
+        var target = document.querySelector(a.getAttribute('href'));
+        if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+      });
+    });
+
+    // FAQ toggle
+    function toggleFaq(el) {
+      var item = el.parentElement;
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(function(i) { i.classList.remove('open'); });
+      if (!isOpen) item.classList.add('open');
+    }
+  </script>
 </body>
 </html>
